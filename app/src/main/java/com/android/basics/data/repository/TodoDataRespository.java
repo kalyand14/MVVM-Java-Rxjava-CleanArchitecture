@@ -1,6 +1,5 @@
 package com.android.basics.data.repository;
 
-import com.android.basics.data.component.DaoExecutor;
 import com.android.basics.data.mapper.TodoListMapper;
 import com.android.basics.data.mapper.TodoMapper;
 import com.android.basics.data.source.dao.TodoDao;
@@ -18,7 +17,7 @@ public class TodoDataRespository implements TodoRepository {
     private TodoListMapper todoListMapper;
     private TodoMapper todoMapper;
 
-    public TodoDataRespository(DaoExecutor daoExecutor, TodoDao todoDao, TodoListMapper todoListMapper, TodoMapper todoMapper) {
+    public TodoDataRespository(TodoDao todoDao, TodoListMapper todoListMapper, TodoMapper todoMapper) {
         this.todoDao = todoDao;
         this.todoListMapper = todoListMapper;
         this.todoMapper = todoMapper;

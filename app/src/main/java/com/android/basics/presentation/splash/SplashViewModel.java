@@ -2,7 +2,7 @@ package com.android.basics.presentation.splash;
 
 import androidx.lifecycle.ViewModel;
 
-public class SplashViewModel extends ViewModel implements SplashContract.Presenter {
+public class SplashViewModel extends ViewModel {
 
     private SplashContract.Navigator navigator;
 
@@ -10,8 +10,13 @@ public class SplashViewModel extends ViewModel implements SplashContract.Present
         this.navigator = navigator;
     }
 
-    @Override
     public void navigate() {
         navigator.goToLoginScreen();
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        navigator = null;
     }
 }

@@ -11,6 +11,7 @@ import com.android.basics.domain.interactor.user.RegisterUserInteractor;
 import com.android.basics.domain.model.User;
 import com.android.basics.presentation.components.UserSession;
 
+import io.reactivex.observers.DisposableCompletableObserver;
 import io.reactivex.observers.DisposableSingleObserver;
 
 public class RegistrationViewModel extends ViewModel {
@@ -40,15 +41,17 @@ public class RegistrationViewModel extends ViewModel {
 
     @Override
     protected void onCleared() {
-        this.registerUserInteractor.dispose();
         super.onCleared();
+        this.registerUserInteractor.dispose();
+        this.authenticateUserInteractor.dispose();
+        this.coordinator = null;
     }
 
     @SuppressLint("CheckResult")
 
     public void onRegisterClick(String userName, String password) {
         state.postValue(Resource.loading());
-        registerUserInteractor.execute(RegisterUserInteractor.Params.forUser(userName, password))
+        registerUserInteractor.execute(new RegisterObserver(), RegisterUserInteractor.Params.forUser(userName, password))
                 .andThen(authenticateUserInteractor.execute(new AuthenticateObserver(), AuthenticateUserInteractor.Params.forUser(userName, password)));
     }
 
@@ -59,6 +62,18 @@ public class RegistrationViewModel extends ViewModel {
 
     public void onRegistrationSuccess() {
         coordinator.goToHomeScreen();
+    }
+
+    private final class RegisterObserver extends DisposableCompletableObserver {
+        @Override
+        public void onComplete() {
+
+        }
+
+        @Override
+        public void onError(Throwable e) {
+
+        }
     }
 
     private final class AuthenticateObserver extends DisposableSingleObserver<User> {
@@ -74,5 +89,6 @@ public class RegistrationViewModel extends ViewModel {
             state.postValue(Resource.error(e.getMessage()));
         }
     }
+
 
 }

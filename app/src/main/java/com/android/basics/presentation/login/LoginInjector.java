@@ -41,6 +41,7 @@ public class LoginInjector {
     private void injectObject(LoginActivity activity) {
         ViewModelFactory viewModelFactory = new ViewModelFactory(applicationComponent);
         navigator = viewModelFactory.getNavigator();
+        navigator.setActivity(activity);
         activity.viewModel = new ViewModelProvider(activity, viewModelFactory).get(LoginViewModel.class);
     }
 

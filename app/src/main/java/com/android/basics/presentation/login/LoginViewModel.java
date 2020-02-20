@@ -50,4 +50,11 @@ public class LoginViewModel extends ViewModel {
             state.postValue(Resource.error(e.getMessage()));
         }
     }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        authenticateUserInteractor.dispose();
+        coordinator = null;
+    }
 }

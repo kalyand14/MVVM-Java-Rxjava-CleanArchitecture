@@ -31,6 +31,7 @@ public class SplashInjector {
     private void injectObject(SplashActivity activity) {
         ViewModelFactory viewModelFactory = new ViewModelFactory(applicationComponent);
         navigator = viewModelFactory.getNavigator();
+        navigator.setActivity(activity);
         activity.viewModel = new ViewModelProvider(activity, viewModelFactory).get(SplashViewModel.class);
     }
 

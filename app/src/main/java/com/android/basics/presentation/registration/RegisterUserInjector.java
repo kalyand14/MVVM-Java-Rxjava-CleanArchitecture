@@ -40,6 +40,7 @@ public class RegisterUserInjector {
     private void injectObject(RegisterUserActivity activity) {
         ViewModelFactory viewModelFactory = new ViewModelFactory(applicationComponent);
         navigator = viewModelFactory.getNavigator();
+        navigator.setActivity(activity);
         activity.viewModel = new ViewModelProvider(activity, viewModelFactory).get(RegistrationViewModel.class);
     }
 

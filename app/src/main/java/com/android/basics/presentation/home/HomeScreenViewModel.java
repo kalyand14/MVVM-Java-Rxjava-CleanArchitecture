@@ -17,12 +17,15 @@ import io.reactivex.subscribers.DisposableSubscriber;
 public class HomeScreenViewModel extends ViewModel {
 
     private final GetTodoListInteractor getTodoListInteractor;
-    private final HomeScreenContract.Navigator navigator;
+    private HomeScreenContract.Navigator navigator;
     private final UserSession session;
     private final UserComponent userComponent;
 
     private final MutableLiveData<Resource<List<Todo>>> state = new MutableLiveData<>();
     private final SingleLiveEvent<Void> loggedOutEvent = new SingleLiveEvent<>();
+
+
+    private final SingleLiveEvent<String> welcomeMessageEvent = new SingleLiveEvent<>();
 
     public HomeScreenViewModel(
             GetTodoListInteractor getTodoListInteractor,
@@ -37,6 +40,9 @@ public class HomeScreenViewModel extends ViewModel {
     }
 
     public void onLoadTodoList(int userId) {
+
+        welcomeMessageEvent.setValue("Welcome " + session.getUser().getUserName());
+
         state.postValue(Resource.loading());
         getTodoListInteractor.execute(new GetTodoObserver(), GetTodoListInteractor.Params.forUser(userId));
     }
@@ -52,6 +58,10 @@ public class HomeScreenViewModel extends ViewModel {
 
     public void onAddTodo() {
         navigator.gotoAddTodoScreen();
+    }
+
+    public SingleLiveEvent<String> getWelcomeMessageEvent() {
+        return welcomeMessageEvent;
     }
 
     public MutableLiveData<Resource<List<Todo>>> getState() {
@@ -83,5 +93,12 @@ public class HomeScreenViewModel extends ViewModel {
 
     public SingleLiveEvent<Void> getLoggedOutEvent() {
         return loggedOutEvent;
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        getTodoListInteractor.dispose();
+        navigator = null;
     }
 }

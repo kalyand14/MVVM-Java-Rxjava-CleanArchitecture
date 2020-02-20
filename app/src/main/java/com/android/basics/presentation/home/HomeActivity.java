@@ -23,7 +23,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity implements HomeScreenContract.View {
+public class HomeActivity extends AppCompatActivity {
 
     HomeScreenViewModel viewModel;
     ProgressDialog progressDialog;
@@ -61,6 +61,7 @@ public class HomeActivity extends AppCompatActivity implements HomeScreenContrac
     @Override
     protected void onStart() {
         super.onStart();
+        viewModel.getWelcomeMessageEvent().observe(this, this::setWelcomeMessage);
         viewModel.getState().observe(this, it -> {
             if (it != null) {
                 handleState(it.getState(), it.getData(), it.getMessage());
@@ -96,39 +97,39 @@ public class HomeActivity extends AppCompatActivity implements HomeScreenContrac
         dismissProgressDialog();
     }
 
-    @Override
+
     public void showProgressDialog() {
         progressDialog.setMessage("Loading todo list");
         progressDialog.show();
     }
 
-    @Override
+
     public void dismissProgressDialog() {
         progressDialog.dismiss();
         progressDialog.cancel();
     }
 
-    @Override
+
     public void showErrorLayout(boolean display) {
         txtError.setVisibility(display ? View.VISIBLE : View.GONE);
     }
 
-    @Override
+
     public void showList(boolean display) {
         recyclerView.setVisibility(display ? View.VISIBLE : View.GONE);
     }
 
-    @Override
+
     public void loadTodoList(List<Todo> todoList) {
         todoListAdapter.addItems(todoList);
     }
 
-    @Override
+
     public void setWelcomeMessage(String message) {
         setTitle(message);
     }
 
-    @Override
+
     public void showLogoutConfirmationDialog() {
         //Setting message manually and performing action on button click
         builder.setMessage("Do you want to log out?")

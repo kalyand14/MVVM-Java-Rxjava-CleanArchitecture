@@ -2,16 +2,19 @@ package com.android.basics.presentation.todo.add;
 
 import android.app.ProgressDialog;
 
+import androidx.lifecycle.ViewModelProvider;
+
 import com.android.basics.core.TodoApplication;
+import com.android.basics.core.navigation.Navigator;
 import com.android.basics.di.ApplicationComponent;
-import com.android.basics.domain.interactor.todo.AddTodoInteractor;
-import com.android.basics.presentation.TodoCoordinator;
-import com.android.basics.presentation.components.UserSession;
+import com.android.basics.di.ViewModelFactory;
+import com.android.basics.presentation.todo.edit.EditTodoViewModel;
 
 public class AddTodoInjector {
 
     private ApplicationComponent applicationComponent;
     private static AddTodoInjector instance = null;
+    private Navigator navigator;
 
     private AddTodoInjector() {
     }
@@ -35,18 +38,16 @@ public class AddTodoInjector {
     }
 
     private void injectObject(AddTodoActivity activity) {
-        activity.presenter = new AddTodoPresenter(provideNavigator(activity), provideAddTodo(), UserSession.getInstance());
+        ViewModelFactory viewModelFactory = new ViewModelFactory(applicationComponent);
+        navigator = viewModelFactory.getNavigator();
+        navigator.setActivity(activity);
+        activity.viewModel = new ViewModelProvider(activity, viewModelFactory).get(AddTodoViewModel.class);
     }
 
-    private AddTodoContract.Navigator provideNavigator(AddTodoActivity activity) {
-        return new TodoCoordinator(applicationComponent.navigator(activity));
-    }
-
-    private AddTodoInteractor provideAddTodo() {
-        return new AddTodoInteractor(applicationComponent.todoRepository());
-    }
 
     public void destroy() {
+        navigator.clear();
+        navigator = null;
         instance = null;
     }
 

@@ -8,12 +8,19 @@ import com.android.basics.domain.repository.TodoRepository;
 import com.android.basics.domain.repository.UserRepository;
 
 public class ApplicationComponent {
-
+    private static ApplicationComponent instance = null;
     private final InstanceContainer container = new InstanceContainer();
 
     private ApplicationModule applicationModule;
 
     private PresentationModule presentationModule;
+
+    public static ApplicationComponent getInstance() {
+        if (instance == null) {
+            instance = new ApplicationComponent();
+        }
+        return instance;
+    }
 
     public ApplicationModule getApplicationModule() {
         return applicationModule;
@@ -29,6 +36,7 @@ public class ApplicationComponent {
 
     public void setPresentationModule(PresentationModule presentationModule) {
         this.presentationModule = presentationModule;
+        this.presentationModule.setApplicationComponent(this);
     }
 
     public IntentFactory intentFactory() {
@@ -51,14 +59,14 @@ public class ApplicationComponent {
 
     public UserRepository userRepository() {
         if (!container.has(UserRepository.class)) {
-            container.register(UserRepository.class, applicationModule.provideUserRepository(applicationModule.provideDaoExecutor(), applicationModule.provideUserDao(applicationModule.provideTodoDatabase(applicationModule.getApplication())), applicationModule.provideUserMapper()));
+            container.register(UserRepository.class, applicationModule.provideUserRepository(applicationModule.provideUserDao(applicationModule.provideTodoDatabase(applicationModule.getApplication())), applicationModule.provideUserMapper()));
         }
         return container.get(UserRepository.class);
     }
 
     public TodoRepository todoRepository() {
         if (!container.has(TodoRepository.class)) {
-            container.register(TodoRepository.class, applicationModule.provideTodoRepository(applicationModule.provideDaoExecutor(), applicationModule.provideTodoDao(applicationModule.provideTodoDatabase(applicationModule.getApplication())), applicationModule.provideTodoListMapper(), applicationModule.provideTodoMapper()));
+            container.register(TodoRepository.class, applicationModule.provideTodoRepository(applicationModule.provideTodoDao(applicationModule.provideTodoDatabase(applicationModule.getApplication())), applicationModule.provideTodoListMapper(), applicationModule.provideTodoMapper()));
         }
         return container.get(TodoRepository.class);
     }

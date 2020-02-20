@@ -13,7 +13,7 @@ import com.android.basics.core.presentation.ResourceState;
 import com.android.basics.di.UserComponent;
 import com.android.basics.domain.model.User;
 
-public class LoginActivity extends AppCompatActivity implements LoginContract.View {
+public class LoginActivity extends AppCompatActivity {
 
     LoginViewModel viewModel;
 
@@ -59,19 +59,19 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
         LoginInjector.getInstance().destroy();
     }
 
-    @Override
+
     public void showProgressDialog() {
         progressDialog.setMessage("Logging in");
         progressDialog.show();
     }
 
-    @Override
+
     public void dismissProgressDialog() {
         progressDialog.dismiss();
         progressDialog.cancel();
     }
 
-    @Override
+
     public void showAuthenticationError() {
 
         edtUserName.setText("");

@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.basics.R;
-import com.android.basics.di.TodoScope;
+import com.android.basics.di.TodoComponent;
 import com.android.basics.domain.model.Todo;
 import com.android.basics.presentation.components.BaseViewHolder;
 import com.android.basics.presentation.components.TodoSession;
@@ -23,11 +23,11 @@ public class TodoListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     private HomeScreenContract.Navigator navigator;
 
-    private TodoScope scope;
+    private TodoComponent scope;
 
     private TodoSession session;
 
-    public TodoListAdapter(List<Todo> todoList, HomeScreenContract.Navigator navigator, TodoSession todoSession, TodoScope scope) {
+    public TodoListAdapter(List<Todo> todoList, HomeScreenContract.Navigator navigator, TodoSession todoSession, TodoComponent scope) {
         this.todoList = todoList;
         this.navigator = navigator;
         this.scope = scope;

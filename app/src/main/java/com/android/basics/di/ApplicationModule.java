@@ -9,7 +9,6 @@ import com.android.basics.core.navigation.IntentFactory;
 import com.android.basics.core.navigation.NativeBundleFactory;
 import com.android.basics.core.navigation.NativeIntentFactory;
 import com.android.basics.core.navigation.Navigator;
-import com.android.basics.data.component.DaoExecutor;
 import com.android.basics.data.mapper.TodoListMapper;
 import com.android.basics.data.mapper.TodoMapper;
 import com.android.basics.data.mapper.UserMapper;
@@ -43,16 +42,12 @@ public class ApplicationModule {
         return new Navigator(intentFactory, bundleFactory);
     }
 
-    public UserRepository provideUserRepository(DaoExecutor daoExecutor, UserDao userDao, UserMapper userMapper) {
-        return new UserDataRespository(daoExecutor, userDao, userMapper);
+    public UserRepository provideUserRepository(UserDao userDao, UserMapper userMapper) {
+        return new UserDataRespository(userDao, userMapper);
     }
 
-    public TodoRepository provideTodoRepository(DaoExecutor daoExecutor, TodoDao userDao, TodoListMapper todoListMapper, TodoMapper todoMapper) {
-        return new TodoDataRespository(daoExecutor, userDao, todoListMapper, todoMapper);
-    }
-
-    public DaoExecutor provideDaoExecutor() {
-        return new DaoExecutor();
+    public TodoRepository provideTodoRepository(TodoDao userDao, TodoListMapper todoListMapper, TodoMapper todoMapper) {
+        return new TodoDataRespository(userDao, todoListMapper, todoMapper);
     }
 
     public TodoDatabase provideTodoDatabase(Application application) {

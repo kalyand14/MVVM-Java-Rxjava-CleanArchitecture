@@ -6,24 +6,27 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.android.basics.core.navigation.Navigator;
 import com.android.basics.presentation.TodoCoordinator;
+import com.android.basics.presentation.components.TodoSession;
 import com.android.basics.presentation.components.UserSession;
 import com.android.basics.presentation.home.HomeScreenViewModel;
 import com.android.basics.presentation.login.LoginViewModel;
 import com.android.basics.presentation.registration.RegistrationViewModel;
 import com.android.basics.presentation.splash.SplashViewModel;
+import com.android.basics.presentation.todo.add.AddTodoViewModel;
+import com.android.basics.presentation.todo.edit.EditTodoViewModel;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
 
     private ApplicationComponent applicationComponent;
     private PresentationModule presentationModule;
-    private Navigator navigator = applicationComponent.navigator();
-
-
-    private TodoCoordinator todoCoordinator = new TodoCoordinator(navigator);
+    private Navigator navigator;
+    private TodoCoordinator todoCoordinator;
 
     public ViewModelFactory(ApplicationComponent applicationComponent) {
         this.applicationComponent = applicationComponent;
         this.presentationModule = applicationComponent.getPresentationModule();
+        this.navigator = applicationComponent.navigator();
+        this.todoCoordinator = new TodoCoordinator(navigator);
     }
 
     @NonNull
@@ -37,6 +40,10 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) provideLoginViewModel();
         } else if (modelClass.isAssignableFrom(HomeScreenViewModel.class)) {
             return (T) provideHomeScreenViewModel();
+        } else if (modelClass.isAssignableFrom(AddTodoViewModel.class)) {
+            return (T) provideAddTodoViewModel();
+        } else if (modelClass.isAssignableFrom(EditTodoViewModel.class)) {
+            return (T) provideEditTodoViewModel();
         }
         //noinspection unchecked
         throw new IllegalArgumentException("Unknown ViewModel class");
@@ -71,6 +78,23 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
                 todoCoordinator,
                 UserSession.getInstance(),
                 UserComponent.getInstance()
+        );
+    }
+
+    public AddTodoViewModel provideAddTodoViewModel() {
+        return new AddTodoViewModel(
+                todoCoordinator,
+                presentationModule.provideAddTodo(),
+                UserSession.getInstance()
+        );
+    }
+
+    public EditTodoViewModel provideEditTodoViewModel() {
+        return new EditTodoViewModel(
+                presentationModule.provideEditTodoInteractor(),
+                presentationModule.provideDeleteTodoInteractor(),
+                todoCoordinator,
+                TodoSession.getInstance()
         );
     }
 

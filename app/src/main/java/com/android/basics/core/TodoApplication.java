@@ -15,7 +15,7 @@ public class TodoApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        applicationComponent = new ApplicationComponent();
+        applicationComponent = ApplicationComponent.getInstance();
         applicationComponent.setApplicationModule(new ApplicationModule(this));
         applicationComponent.setPresentationModule(new PresentationModule());
 
