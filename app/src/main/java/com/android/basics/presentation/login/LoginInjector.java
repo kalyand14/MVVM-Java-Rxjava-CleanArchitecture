@@ -2,15 +2,17 @@ package com.android.basics.presentation.login;
 
 import android.app.ProgressDialog;
 
+import androidx.lifecycle.ViewModelProvider;
+
 import com.android.basics.core.TodoApplication;
-import com.android.basics.di.ApplicationScope;
-import com.android.basics.domain.interactor.user.AuthenticateUserInteractor;
-import com.android.basics.presentation.TodoNavigator;
-import com.android.basics.presentation.components.UserSession;
+import com.android.basics.core.navigation.Navigator;
+import com.android.basics.di.ApplicationComponent;
+import com.android.basics.di.ViewModelFactory;
 
 public class LoginInjector {
 
-    private ApplicationScope applicationScope;
+    private ApplicationComponent applicationComponent;
+    private Navigator navigator;
 
     private static LoginInjector instance = null;
 
@@ -25,7 +27,7 @@ public class LoginInjector {
     }
 
     public void inject(LoginActivity activity) {
-        applicationScope = ((TodoApplication) activity.getApplication()).getApplicationScope();
+        applicationComponent = ((TodoApplication) activity.getApplication()).getApplicationComponent();
         injectView(activity);
         injectObject(activity);
     }
@@ -37,19 +39,14 @@ public class LoginInjector {
     }
 
     private void injectObject(LoginActivity activity) {
-        activity.presenter = new LoginPresenter(provideNavigator(activity), provideAuthenticator(), UserSession.getInstance());
-    }
-
-    private LoginContract.Navigator provideNavigator(LoginActivity activity) {
-        return new TodoNavigator(applicationScope.navigator(activity));
-    }
-
-    private AuthenticateUserInteractor provideAuthenticator() {
-        return new AuthenticateUserInteractor(applicationScope.userRepository());
+        ViewModelFactory viewModelFactory = new ViewModelFactory(applicationComponent);
+        navigator = viewModelFactory.getNavigator();
+        activity.viewModel = new ViewModelProvider(activity, viewModelFactory).get(LoginViewModel.class);
     }
 
     public void destroy() {
+        navigator.clear();
+        navigator = null;
         instance = null;
-
     }
 }

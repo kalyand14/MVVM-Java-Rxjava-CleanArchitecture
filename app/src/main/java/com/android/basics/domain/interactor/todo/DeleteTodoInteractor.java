@@ -1,35 +1,27 @@
 package com.android.basics.domain.interactor.todo;
 
-import com.android.basics.core.Callback;
-import com.android.basics.core.mvp.UseCase;
+import androidx.core.util.Preconditions;
+
+import com.android.basics.core.domain.executor.PostExecutionThread;
+import com.android.basics.core.domain.executor.ThreadExecutor;
+import com.android.basics.core.domain.interactor.CompletableUseCase;
 import com.android.basics.domain.repository.TodoRepository;
 
-public class DeleteTodoInteractor extends UseCase<Integer, Boolean> {
+import io.reactivex.Completable;
+
+public class DeleteTodoInteractor extends CompletableUseCase<Integer> {
 
     private TodoRepository todoRepository;
 
-    public DeleteTodoInteractor(TodoRepository todoRepository) {
+    public DeleteTodoInteractor(TodoRepository todoRepository, ThreadExecutor threadExecutor,
+                                PostExecutionThread postExecutionThread) {
+        super(threadExecutor, postExecutionThread);
         this.todoRepository = todoRepository;
     }
 
     @Override
-    protected void executeTask(Integer todoId, final Callback<Boolean> callback) {
-        todoRepository.deleteTodo(todoId, new Callback<Boolean>() {
-            @Override
-            public void onResponse(Boolean response) {
-                if (!isDisposed()) {
-                    callback.onResponse(response);
-                }
-            }
-
-            @Override
-            public void onError(String errorcode, String errorResponse) {
-                if (!isDisposed()) {
-                    callback.onError(errorcode, errorResponse);
-                }
-            }
-        });
+    public Completable buildUseCaseObservable(Integer params) {
+        Preconditions.checkNotNull(params);
+        return todoRepository.deleteTodo(params);
     }
-
-
 }

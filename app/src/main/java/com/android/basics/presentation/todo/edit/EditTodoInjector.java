@@ -3,15 +3,15 @@ package com.android.basics.presentation.todo.edit;
 import android.app.ProgressDialog;
 
 import com.android.basics.core.TodoApplication;
-import com.android.basics.di.ApplicationScope;
+import com.android.basics.di.ApplicationComponent;
 import com.android.basics.domain.interactor.todo.DeleteTodoInteractor;
 import com.android.basics.domain.interactor.todo.EditTodoInteractor;
-import com.android.basics.presentation.TodoNavigator;
+import com.android.basics.presentation.TodoCoordinator;
 import com.android.basics.presentation.components.TodoSession;
 
 public class EditTodoInjector {
 
-    private ApplicationScope applicationScope;
+    private ApplicationComponent applicationComponent;
     private static EditTodoInjector instance = null;
 
     private EditTodoInjector() {
@@ -25,7 +25,7 @@ public class EditTodoInjector {
     }
 
     public void inject(EditTodoActivity activity) {
-        applicationScope = ((TodoApplication) activity.getApplication()).getApplicationScope();
+        applicationComponent = ((TodoApplication) activity.getApplication()).getApplicationComponent();
         injectView(activity);
         injectObject(activity);
     }
@@ -40,15 +40,15 @@ public class EditTodoInjector {
     }
 
     private EditTodoContract.Navigator provideNavigator(EditTodoActivity activity) {
-        return new TodoNavigator(applicationScope.navigator(activity));
+        return new TodoCoordinator(applicationComponent.navigator(activity));
     }
 
     private EditTodoInteractor provideEditTodoInteractor() {
-        return new EditTodoInteractor(applicationScope.todoRepository());
+        return new EditTodoInteractor(applicationComponent.todoRepository());
     }
 
     private DeleteTodoInteractor provideDeleteTodoInteractor() {
-        return new DeleteTodoInteractor(applicationScope.todoRepository());
+        return new DeleteTodoInteractor(applicationComponent.todoRepository());
     }
 
     public void destroy() {

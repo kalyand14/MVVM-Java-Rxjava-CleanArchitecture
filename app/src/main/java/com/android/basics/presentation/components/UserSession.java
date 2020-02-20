@@ -1,7 +1,7 @@
 package com.android.basics.presentation.components;
 
-import com.android.basics.core.di.ScopeObserver;
-import com.android.basics.di.UserScope;
+import com.android.basics.di.internal.ScopeObserver;
+import com.android.basics.di.UserComponent;
 import com.android.basics.domain.model.Todo;
 import com.android.basics.domain.model.User;
 
@@ -14,10 +14,10 @@ public class UserSession implements ScopeObserver {
     private List<Todo> todoList;
 
     public static UserSession getInstance() {
-        if (!UserScope.getInstance().getContainer().has(UserSession.class)) {
-            UserScope.getInstance().getContainer().register(UserSession.class, new UserSession());
+        if (!UserComponent.getInstance().getContainer().has(UserSession.class)) {
+            UserComponent.getInstance().getContainer().register(UserSession.class, new UserSession());
         }
-        return UserScope.getInstance().getContainer().get(UserSession.class);
+        return UserComponent.getInstance().getContainer().get(UserSession.class);
     }
 
     public void setUser(User user) {

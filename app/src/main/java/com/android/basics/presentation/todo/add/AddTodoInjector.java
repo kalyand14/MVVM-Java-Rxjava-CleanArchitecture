@@ -3,14 +3,14 @@ package com.android.basics.presentation.todo.add;
 import android.app.ProgressDialog;
 
 import com.android.basics.core.TodoApplication;
-import com.android.basics.di.ApplicationScope;
+import com.android.basics.di.ApplicationComponent;
 import com.android.basics.domain.interactor.todo.AddTodoInteractor;
-import com.android.basics.presentation.TodoNavigator;
+import com.android.basics.presentation.TodoCoordinator;
 import com.android.basics.presentation.components.UserSession;
 
 public class AddTodoInjector {
 
-    private ApplicationScope applicationScope;
+    private ApplicationComponent applicationComponent;
     private static AddTodoInjector instance = null;
 
     private AddTodoInjector() {
@@ -24,7 +24,7 @@ public class AddTodoInjector {
     }
 
     public void inject(AddTodoActivity activity) {
-        applicationScope = ((TodoApplication) activity.getApplication()).getApplicationScope();
+        applicationComponent = ((TodoApplication) activity.getApplication()).getApplicationComponent();
         injectView(activity);
         injectObject(activity);
     }
@@ -39,11 +39,11 @@ public class AddTodoInjector {
     }
 
     private AddTodoContract.Navigator provideNavigator(AddTodoActivity activity) {
-        return new TodoNavigator(applicationScope.navigator(activity));
+        return new TodoCoordinator(applicationComponent.navigator(activity));
     }
 
     private AddTodoInteractor provideAddTodo() {
-        return new AddTodoInteractor(applicationScope.todoRepository());
+        return new AddTodoInteractor(applicationComponent.todoRepository());
     }
 
     public void destroy() {

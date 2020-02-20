@@ -9,11 +9,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.basics.R;
-import com.android.basics.di.UserScope;
+import com.android.basics.core.presentation.ResourceState;
+import com.android.basics.di.UserComponent;
+import com.android.basics.domain.model.User;
 
 public class LoginActivity extends AppCompatActivity implements LoginContract.View {
 
-    LoginContract.Presenter presenter;
+    LoginViewModel viewModel;
 
     ProgressDialog progressDialog;
 
@@ -36,13 +38,13 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
         edtPassword = findViewById(R.id.edt_todo_description);
         builder = new AlertDialog.Builder(this);
 
-        btnLogin.setOnClickListener(view -> presenter.OnLoginClick(edtUserName.getText().toString(), edtPassword.getText().toString()));
-        btnRegister.setOnClickListener(view -> presenter.onRegisterClick());
+        btnLogin.setOnClickListener(view -> viewModel.OnLoginClick(edtUserName.getText().toString(), edtPassword.getText().toString()));
+        btnRegister.setOnClickListener(view -> viewModel.onRegisterClick());
 
-        UserScope.getInstance().end();
+        UserComponent.getInstance().end();
 
         LoginInjector.getInstance().inject(this);
-        this.presenter.attach(this);
+
     }
 
     @Override
@@ -54,7 +56,6 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        this.presenter.detach();
         LoginInjector.getInstance().destroy();
     }
 
@@ -88,5 +89,30 @@ public class LoginActivity extends AppCompatActivity implements LoginContract.Vi
         alert.show();
 
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        viewModel.getState().observe(this, it -> {
+            if (it != null) {
+                handleState(it.getState(), it.getData(), it.getMessage());
+            }
+        });
+    }
+
+    private void handleState(ResourceState state, User user, String errorMessage) {
+        switch (state) {
+            case SUCCESS:
+                dismissProgressDialog();
+                break;
+            case ERROR:
+                dismissProgressDialog();
+                showAuthenticationError();
+                break;
+            case LOADING:
+                showProgressDialog();
+                break;
+        }
     }
 }

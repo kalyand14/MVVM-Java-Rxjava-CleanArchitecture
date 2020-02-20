@@ -1,11 +1,14 @@
 package com.android.basics.domain.repository;
 
-import com.android.basics.core.Callback;
 import com.android.basics.domain.model.User;
 
-public interface UserRepository {
-    void authenticate(String userName, String password, Callback<User> callback);
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 
-    void register(String userName, String password, Callback<User> callback);
+public interface UserRepository {
+    Single<User> authenticate(String userName, String password);
+
+    Completable register(String userName, String password);
 
 }

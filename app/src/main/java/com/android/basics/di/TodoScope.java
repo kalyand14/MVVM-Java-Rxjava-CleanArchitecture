@@ -1,7 +1,7 @@
 package com.android.basics.di;
 
-import com.android.basics.core.di.BaseScope;
-import com.android.basics.core.di.InstanceContainer;
+import com.android.basics.di.internal.BaseScope;
+import com.android.basics.di.internal.InstanceContainer;
 
 public class TodoScope implements BaseScope {
     private final InstanceContainer container = new InstanceContainer();
@@ -10,10 +10,10 @@ public class TodoScope implements BaseScope {
     }
 
     public static TodoScope getInstance() {
-        if (!UserScope.getInstance().getContainer().has(TodoScope.class)) {
-            UserScope.getInstance().getContainer().register(TodoScope.class, new TodoScope());
+        if (!UserComponent.getInstance().getContainer().has(TodoScope.class)) {
+            UserComponent.getInstance().getContainer().register(TodoScope.class, new TodoScope());
         }
-        return UserScope.getInstance().getContainer().get(TodoScope.class);
+        return UserComponent.getInstance().getContainer().get(TodoScope.class);
     }
 
     public InstanceContainer getContainer() {

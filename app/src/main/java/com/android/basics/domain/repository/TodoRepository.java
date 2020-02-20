@@ -1,18 +1,20 @@
 package com.android.basics.domain.repository;
 
-import com.android.basics.core.Callback;
 import com.android.basics.domain.model.Todo;
 
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.Flowable;
+
 public interface TodoRepository {
-    void getTodoList(int userId, Callback<List<Todo>> callback);
+    Flowable<List<Todo>> getTodoList(final int userId);
 
-    void getTodo(int todoId, Callback<Todo> callback);
+    Flowable<Todo> getTodo(int todoId);
 
-    void editTodo(int todoId, String name, String desctiption, String date, Callback<Boolean> callback);
+    Completable editTodo(Todo todo);
 
-    void addTodo(int userId, String name, String desctiption, String date, Callback<Boolean> callback);
+    Completable addTodo(int userId, String name, String desctiption, String date);
 
-    void deleteTodo(int todoId, Callback<Boolean> callback);
+    Completable deleteTodo(final int todoId);
 }

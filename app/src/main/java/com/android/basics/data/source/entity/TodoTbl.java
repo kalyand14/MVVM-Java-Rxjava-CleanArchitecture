@@ -65,7 +65,8 @@ public class TodoTbl {
     private String dueDate;
     private Boolean isCompleted;
 
-    public TodoTbl(int userId, String name, String description, String dueDate, boolean isCompleted) {
+    public TodoTbl(int todoId, int userId, String name, String description, String dueDate, boolean isCompleted) {
+        this.todoId = todoId;
         this.userId = userId;
         this.name = name;
         this.description = description;

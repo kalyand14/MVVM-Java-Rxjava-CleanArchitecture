@@ -2,15 +2,17 @@ package com.android.basics.presentation.registration;
 
 import android.app.ProgressDialog;
 
+import androidx.lifecycle.ViewModelProvider;
+
 import com.android.basics.core.TodoApplication;
-import com.android.basics.di.ApplicationScope;
-import com.android.basics.domain.interactor.user.RegisterUserInteractor;
-import com.android.basics.presentation.TodoNavigator;
-import com.android.basics.presentation.components.UserSession;
+import com.android.basics.core.navigation.Navigator;
+import com.android.basics.di.ApplicationComponent;
+import com.android.basics.di.ViewModelFactory;
 
 public class RegisterUserInjector {
 
-    private ApplicationScope applicationScope;
+    private ApplicationComponent applicationComponent;
+    private Navigator navigator;
 
     private static RegisterUserInjector instance = null;
 
@@ -25,7 +27,7 @@ public class RegisterUserInjector {
     }
 
     public void inject(RegisterUserActivity activity) {
-        applicationScope = ((TodoApplication) activity.getApplication()).getApplicationScope();
+        applicationComponent = ((TodoApplication) activity.getApplication()).getApplicationComponent();
         injectView(activity);
         injectObject(activity);
     }
@@ -36,18 +38,15 @@ public class RegisterUserInjector {
     }
 
     private void injectObject(RegisterUserActivity activity) {
-        activity.presenter = new RegisterUserPresenter(provideNavigator(activity), provideRegisterUser(), UserSession.getInstance());
+        ViewModelFactory viewModelFactory = new ViewModelFactory(applicationComponent);
+        navigator = viewModelFactory.getNavigator();
+        activity.viewModel = new ViewModelProvider(activity, viewModelFactory).get(RegistrationViewModel.class);
     }
 
-    private RegisterUserContract.Navigator provideNavigator(RegisterUserActivity activity) {
-        return new TodoNavigator(applicationScope.navigator(activity));
-    }
-
-    private RegisterUserInteractor provideRegisterUser() {
-        return new RegisterUserInteractor(applicationScope.userRepository());
-    }
 
     public void destroy() {
+        navigator.clear();
+        navigator = null;
         instance = null;
     }
 }

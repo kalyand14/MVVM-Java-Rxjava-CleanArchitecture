@@ -1,35 +1,30 @@
 package com.android.basics.domain.interactor.todo;
 
-import com.android.basics.core.Callback;
-import com.android.basics.core.mvp.UseCase;
+import androidx.core.util.Preconditions;
+
+import com.android.basics.core.domain.executor.PostExecutionThread;
+import com.android.basics.core.domain.executor.ThreadExecutor;
+import com.android.basics.core.domain.interactor.CompletableUseCase;
 import com.android.basics.domain.repository.TodoRepository;
 
-public class AddTodoInteractor extends UseCase<AddTodoInteractor.Params, Boolean> {
+import io.reactivex.Completable;
+
+public class AddTodoInteractor extends CompletableUseCase<AddTodoInteractor.Params> {
 
     private TodoRepository todoRepository;
 
-    public AddTodoInteractor(TodoRepository todoRepository) {
+    public AddTodoInteractor(TodoRepository todoRepository, ThreadExecutor threadExecutor,
+                             PostExecutionThread postExecutionThread) {
+        super(threadExecutor, postExecutionThread);
         this.todoRepository = todoRepository;
     }
 
     @Override
-    protected void executeTask(AddTodoInteractor.Params param, final Callback<Boolean> callback) {
-        todoRepository.addTodo(param.userId, param.name, param.description, param.date, new Callback<Boolean>() {
-            @Override
-            public void onResponse(Boolean response) {
-                if (!isDisposed()) {
-                    callback.onResponse(response);
-                }
-            }
-
-            @Override
-            public void onError(String errorcode, String errorResponse) {
-                if (!isDisposed()) {
-                    callback.onError(errorcode, errorResponse);
-                }
-            }
-        });
+    public Completable buildUseCaseObservable(Params params) {
+        Preconditions.checkNotNull(params);
+        return todoRepository.addTodo(params.userId, params.name, params.description, params.date);
     }
+
 
     public static final class Params {
         private int userId;

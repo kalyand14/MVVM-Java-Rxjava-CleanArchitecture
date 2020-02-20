@@ -1,6 +1,6 @@
 package com.android.basics.presentation.components;
 
-import com.android.basics.core.di.ScopeObserver;
+import com.android.basics.di.internal.ScopeObserver;
 import com.android.basics.di.TodoScope;
 import com.android.basics.domain.model.Todo;
 

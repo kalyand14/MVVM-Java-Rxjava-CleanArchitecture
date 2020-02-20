@@ -20,7 +20,7 @@ public class TodoMapper implements Mapper<TodoTbl, Todo>, Inverter<Todo, TodoTbl
         if (fromObj == null) {
             return null;
         } else {
-            return new TodoTbl(fromObj.getUserId(), fromObj.getName(), fromObj.getDescription(), fromObj.getDueDate(), fromObj.isCompleted());
+            return new TodoTbl(fromObj.getTodoId(), fromObj.getUserId(), fromObj.getName(), fromObj.getDescription(), fromObj.getDueDate(), fromObj.isCompleted());
         }
     }
 }

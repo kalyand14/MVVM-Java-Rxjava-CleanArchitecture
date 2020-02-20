@@ -3,10 +3,14 @@
 buildscript {
 
     ext {
-        roomVersion = '2.2.1'
+        roomVersion = '2.2.3'
         archLifecycleVersion = '2.2.0-rc2'
         coreTestingVersion = '2.1.0'
         materialVersion = '1.0.0'
+        lifecycle_version = "2.2.0"
+        rxJavaVersion = '2.0.2'
+        rxAndroidVersion = '2.0.1'
+        javaxAnnotationVersion = '1.0'
     }
 
 
@@ -27,7 +31,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
+
     }
 }
 

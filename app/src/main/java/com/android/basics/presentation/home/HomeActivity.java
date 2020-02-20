@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.basics.R;
+import com.android.basics.core.presentation.ResourceState;
 import com.android.basics.domain.model.Todo;
 import com.android.basics.domain.model.User;
 import com.android.basics.presentation.home.components.TodoListAdapter;
@@ -24,8 +25,8 @@ import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements HomeScreenContract.View {
 
+    HomeScreenViewModel viewModel;
     ProgressDialog progressDialog;
-    HomeScreenContract.Presenter presenter;
     RecyclerView recyclerView;
     TodoListAdapter todoListAdapter;
     LinearLayoutManager layoutManager;
@@ -51,11 +52,42 @@ public class HomeActivity extends AppCompatActivity implements HomeScreenContrac
         HomeScreenInjector.getInstance().inject(this);
 
         recyclerView.setAdapter(todoListAdapter);
-        presenter.attach(this);
 
-        presenter.onLoadTodoList(user.getUserId());
+        viewModel.onLoadTodoList(user.getUserId());
 
-        floatingActionButton.setOnClickListener(view -> presenter.onAddTodo());
+        floatingActionButton.setOnClickListener(view -> viewModel.onAddTodo());
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        viewModel.getState().observe(this, it -> {
+            if (it != null) {
+                handleState(it.getState(), it.getData(), it.getMessage());
+            }
+        });
+        viewModel.getLoggedOutEvent().observe(this, it -> {
+            showLogoutConfirmationDialog();
+        });
+    }
+
+    private void handleState(ResourceState state, List<Todo> todoList, String errorMessage) {
+        switch (state) {
+            case SUCCESS:
+                dismissProgressDialog();
+                showList(true);
+                showErrorLayout(false);
+                loadTodoList(todoList);
+                break;
+            case ERROR:
+                dismissProgressDialog();
+                showList(false);
+                showErrorLayout(true);
+                break;
+            case LOADING:
+                showProgressDialog();
+                break;
+        }
     }
 
     @Override
@@ -103,7 +135,7 @@ public class HomeActivity extends AppCompatActivity implements HomeScreenContrac
                 .setCancelable(false)
                 .setPositiveButton("Yes", (dialog, id) -> {
                     dialog.dismiss();
-                    presenter.logout();
+                    viewModel.logout();
                 })
                 .setNegativeButton("No", (dialog, id) -> {
                     dialog.dismiss();
@@ -118,7 +150,6 @@ public class HomeActivity extends AppCompatActivity implements HomeScreenContrac
     protected void onDestroy() {
         super.onDestroy();
         HomeScreenInjector.getInstance().destroy();
-        presenter.detach();
     }
 
     @Override
@@ -133,7 +164,7 @@ public class HomeActivity extends AppCompatActivity implements HomeScreenContrac
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.logout:
-                presenter.onLogout();
+                viewModel.onLogout();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

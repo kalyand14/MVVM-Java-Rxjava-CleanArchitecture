@@ -1,36 +1,29 @@
 package com.android.basics.domain.interactor.todo;
 
-import com.android.basics.core.Callback;
-import com.android.basics.core.mvp.UseCase;
+import androidx.core.util.Preconditions;
+
+import com.android.basics.core.domain.executor.PostExecutionThread;
+import com.android.basics.core.domain.executor.ThreadExecutor;
+import com.android.basics.core.domain.interactor.FlowableUseCase;
 import com.android.basics.domain.model.Todo;
 import com.android.basics.domain.repository.TodoRepository;
 
-public class GetTodoInteractor extends UseCase<Integer, Todo> {
+import io.reactivex.Flowable;
+
+public class GetTodoInteractor extends FlowableUseCase<Todo, Integer> {
 
     private TodoRepository todoRepository;
 
-    public GetTodoInteractor(TodoRepository todoRepository) {
+    public GetTodoInteractor(TodoRepository todoRepository, ThreadExecutor threadExecutor,
+                             PostExecutionThread postExecutionThread) {
+        super(threadExecutor, postExecutionThread);
         this.todoRepository = todoRepository;
     }
 
+
     @Override
-    protected void executeTask(Integer todoId, final Callback<Todo> callback) {
-        todoRepository.getTodo(todoId, new Callback<Todo>() {
-            @Override
-            public void onResponse(Todo response) {
-                if (!isDisposed()) {
-                    callback.onResponse(response);
-                }
-            }
-
-            @Override
-            public void onError(String errorcode, String errorResponse) {
-                if (!isDisposed()) {
-                    callback.onError(errorcode, errorResponse);
-                }
-            }
-        });
+    public Flowable<Todo> buildUseCaseObservable(Integer params) {
+        Preconditions.checkNotNull(params);
+        return todoRepository.getTodo(params);
     }
-
-
 }

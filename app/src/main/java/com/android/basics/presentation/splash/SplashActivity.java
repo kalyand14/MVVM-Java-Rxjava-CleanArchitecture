@@ -7,26 +7,21 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.basics.R;
 
-public class SplashActivity extends AppCompatActivity implements SplashContract.View {
+public class SplashActivity extends AppCompatActivity {
 
-    SplashContract.Presenter presenter;
+    SplashViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
         SplashInjector.getInstance().inject(this);
-
-        this.presenter.attach(this);
-
-        new Handler().postDelayed(() -> presenter.navigate(), 1000);
+        new Handler().postDelayed(() -> viewModel.navigate(), 1000);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         SplashInjector.getInstance().destroy();
-        this.presenter.detach();
     }
 }
