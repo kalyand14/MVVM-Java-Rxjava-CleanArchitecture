@@ -1,3 +1,6 @@
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2e5580f459324f4f9352b0a714628e46)](https://app.codacy.com/manual/kalyand14/MVVM-Java-Rxjava-CleanArchitecture?utm_source=github.com&utm_medium=referral&utm_content=kalyand14/MVVM-Java-Rxjava-CleanArchitecture&utm_campaign=Badge_Grade_Dashboard)
+
 <H1>Todo Application</H1>
 
   A sample android app that shows how to use ViewModels and Room together with RxJava & Pure Depdency Injection, in Java by Clean Architecture.
