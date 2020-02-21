@@ -1,16 +1,22 @@
-Introduction:
+<H1>Todo Application</H1>
 
-  This is sample project for MVVM clean architecure using Room, RxJava. it is written in Java. Pure depdency injection is used. Dagger will be covered in separate branch.
+  A sample android app that shows how to use ViewModels and Room together with RxJava & Pure Depdency Injection, in Java by Clean Architecture.
+  
+<b>Implemented by Clean Architecture</b>
+
+Presentation (Activity/Fragment and ViewModel)
+Domain (Interactor/Usecases, Repository Interface and Model classes)
+Data (Local/remote datastore and Respository implementation)
+
+<b>Dependecy between compoents</b>
  
- Below is depdency graph of the components used in this project.
- 
- Activity/Fragment  --> Presenter --> Usecase(Interactor) --> Repository --> LocalDataStore(Room DB)
- 
+ Activity/Fragment  --> ViewModel --> Usecase(Interactor) --> Repository --> LocalDataStore(Room DB)
+
+<b>Communication between layers</b>
+
  Below are few component that i want to highlight.
  
  1) Navigator
  2) ResourceManger
- 
-
 
 References:
