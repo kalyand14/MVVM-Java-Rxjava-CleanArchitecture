@@ -4,9 +4,11 @@
   
 <b>Implemented by Clean Architecture</b>
 
-Presentation (Activity/Fragment and ViewModel)
-Domain (Interactor/Usecases, Repository Interface and Model classes)
-Data (Local/remote datastore and Respository implementation)
+<ul>
+<li>Presentation (Activity/Fragment and ViewModel)</li>
+<li>Domain (Interactor/Usecases, Repository Interface and Model classes)</li>
+<li>Data (Local/remote datastore and Respository implementation)</li>
+</ul>
 
 <b>Dependecy between compoents</b>
  
