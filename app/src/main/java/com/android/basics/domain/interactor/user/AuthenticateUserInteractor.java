@@ -1,37 +1,33 @@
 package com.android.basics.domain.interactor.user;
 
-import com.android.basics.core.Callback;
-import com.android.basics.core.mvp.UseCase;
+import androidx.core.util.Preconditions;
+
+import com.android.basics.core.domain.executor.PostExecutionThread;
+import com.android.basics.core.domain.executor.ThreadExecutor;
+import com.android.basics.core.domain.interactor.FlowableUseCase;
+import com.android.basics.core.domain.interactor.SingleUseCase;
 import com.android.basics.domain.model.User;
 import com.android.basics.domain.repository.UserRepository;
 
-public class AuthenticateUserInteractor extends UseCase<AuthenticateUserInteractor.Params, User> {
+import io.reactivex.Flowable;
+import io.reactivex.Single;
+
+public class AuthenticateUserInteractor extends SingleUseCase<User, AuthenticateUserInteractor.Params> {
 
     private UserRepository userRepository;
 
-    public AuthenticateUserInteractor(UserRepository userRepository) {
+    public AuthenticateUserInteractor(UserRepository userRepository, ThreadExecutor threadExecutor,
+                                      PostExecutionThread postExecutionThread) {
+        super(threadExecutor, postExecutionThread);
         this.userRepository = userRepository;
     }
 
     @Override
-    protected void executeTask(Params params, final Callback<User> callback) {
-        this.userRepository.authenticate(params.userName, params.password, new Callback<User>() {
-            @Override
-            public void onResponse(User response) {
-                if (!isDisposed()) {
-                    callback.onResponse(response);
-                }
-            }
-
-            @Override
-            public void onError(String errorcode, String errorResponse) {
-                if (!isDisposed()) {
-                    callback.onError(errorcode, errorResponse);
-                }
-            }
-        });
-
+    protected Single<User> buildUseCaseObservable(Params params) {
+        Preconditions.checkNotNull(params);
+        return this.userRepository.authenticate(params.userName, params.password);
     }
+
 
     public static final class Params {
         private String userName;

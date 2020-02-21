@@ -2,17 +2,18 @@ package com.android.basics.presentation.todo.edit;
 
 import android.app.ProgressDialog;
 
+import androidx.lifecycle.ViewModelProvider;
+
 import com.android.basics.core.TodoApplication;
-import com.android.basics.di.ApplicationScope;
-import com.android.basics.domain.interactor.todo.DeleteTodoInteractor;
-import com.android.basics.domain.interactor.todo.EditTodoInteractor;
-import com.android.basics.presentation.TodoNavigator;
-import com.android.basics.presentation.components.TodoSession;
+import com.android.basics.core.navigation.Navigator;
+import com.android.basics.di.ApplicationComponent;
+import com.android.basics.di.ViewModelFactory;
 
 public class EditTodoInjector {
 
-    private ApplicationScope applicationScope;
+    private ApplicationComponent applicationComponent;
     private static EditTodoInjector instance = null;
+    private Navigator navigator;
 
     private EditTodoInjector() {
     }
@@ -25,7 +26,7 @@ public class EditTodoInjector {
     }
 
     public void inject(EditTodoActivity activity) {
-        applicationScope = ((TodoApplication) activity.getApplication()).getApplicationScope();
+        applicationComponent = ((TodoApplication) activity.getApplication()).getApplicationComponent();
         injectView(activity);
         injectObject(activity);
     }
@@ -36,22 +37,16 @@ public class EditTodoInjector {
     }
 
     private void injectObject(EditTodoActivity activity) {
-        activity.presenter = new EditTodoPresenter(provideEditTodoInteractor(), provideDeleteTodoInteractor(), provideNavigator(activity), TodoSession.getInstance());
+        ViewModelFactory viewModelFactory = new ViewModelFactory(applicationComponent);
+        navigator = viewModelFactory.getNavigator();
+        navigator.setActivity(activity);
+        activity.viewModel = new ViewModelProvider(activity, viewModelFactory).get(EditTodoViewModel.class);
     }
 
-    private EditTodoContract.Navigator provideNavigator(EditTodoActivity activity) {
-        return new TodoNavigator(applicationScope.navigator(activity));
-    }
-
-    private EditTodoInteractor provideEditTodoInteractor() {
-        return new EditTodoInteractor(applicationScope.todoRepository());
-    }
-
-    private DeleteTodoInteractor provideDeleteTodoInteractor() {
-        return new DeleteTodoInteractor(applicationScope.todoRepository());
-    }
 
     public void destroy() {
+        navigator.clear();
+        navigator = null;
         instance = null;
     }
 

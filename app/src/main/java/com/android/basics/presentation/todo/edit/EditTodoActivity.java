@@ -15,12 +15,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.basics.R;
+import com.android.basics.core.presentation.ResourceState;
 
 import java.util.Calendar;
 
-public class EditTodoActivity extends AppCompatActivity implements EditTodoContract.View {
+public class EditTodoActivity extends AppCompatActivity {
 
-    EditTodoContract.Presenter presenter;
+    EditTodoViewModel viewModel;
+
     ProgressDialog progressDialog;
     AlertDialog.Builder builder;
 
@@ -48,53 +50,90 @@ public class EditTodoActivity extends AppCompatActivity implements EditTodoContr
         btnDelete = findViewById(R.id.btn_edit_delete);
         btnDate = findViewById(R.id.btn_edit_date);
 
-        btnSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.onSubmit(edtName.getText().toString(), edtDescription.getText().toString(), edtDate.getText().toString());
-            }
-        });
+        btnSubmit.setOnClickListener(view ->
+                viewModel.onSubmit(edtName.getText().toString(), edtDescription.getText().toString(), edtDate.getText().toString()));
 
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.onDelete();
-            }
-        });
+        btnDelete.setOnClickListener(view -> viewModel.onDelete());
 
-        btnDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.onSelectDate();
-            }
-        });
+        btnDate.setOnClickListener(view -> viewModel.onSelectDate());
 
         EditTodoInjector.getInstance().inject(this);
 
-        presenter.attach(this);
+        viewModel.loadTodo();
+    }
 
-        presenter.loadTodo();
+    @Override
+    protected void onStart() {
+        super.onStart();
+        viewModel.getLoadTodoEvent().observe(this, todo -> {
+            if (todo != null) {
+                setName(todo.getName());
+                setDescription(todo.getDescription());
+                setDate(todo.getDueDate());
+            }
+        });
+
+        viewModel.getShowDatePickerEvent().observe(this, it -> {
+            showDatePickerDialog();
+        });
+        viewModel.getEditTodoState().observe(this, it -> {
+            handleEditTodoState(it.getState(), it.getMessage());
+        });
+        viewModel.getDeleteTodoState().observe(this, it -> {
+            handleDeleteTodoState(it.getState(), it.getMessage());
+        });
+    }
+
+    private void handleEditTodoState(ResourceState state, String errorMessage) {
+        switch (state) {
+            case SUCCESS:
+                dismissProgressDialog();
+                showSuccessDialog("Record successfully updated.");
+                break;
+            case ERROR:
+                dismissProgressDialog();
+                showErrorDialog("There was a problem. could not able to update the record.");
+                break;
+            case LOADING:
+                showProgressDialog("Updating todo");
+                break;
+        }
+    }
+
+    private void handleDeleteTodoState(ResourceState state, String errorMessage) {
+        switch (state) {
+            case SUCCESS:
+                dismissProgressDialog();
+                showSuccessDialog("Record successfully deleted.");
+                break;
+            case ERROR:
+                dismissProgressDialog();
+                showErrorDialog("Error deleting todo");
+                break;
+            case LOADING:
+                showProgressDialog("Deleting todo");
+                break;
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        presenter.detach();
     }
 
-    @Override
+
     public void showProgressDialog(String message) {
         progressDialog.setMessage(message);
         progressDialog.show();
     }
 
-    @Override
+
     public void dismissProgressDialog() {
         progressDialog.dismiss();
         progressDialog.cancel();
     }
 
-    @Override
+
     public void showSuccessDialog(String message) {
 
         //Setting message manually and performing action on button click
@@ -102,7 +141,7 @@ public class EditTodoActivity extends AppCompatActivity implements EditTodoContr
                 .setCancelable(false)
                 .setPositiveButton("Ok", (dialog, id) -> {
                     dialog.dismiss();
-                    presenter.navigate();
+                    viewModel.navigate();
                 });
         //Creating dialog box
         AlertDialog alert = builder.create();
@@ -110,7 +149,7 @@ public class EditTodoActivity extends AppCompatActivity implements EditTodoContr
 
     }
 
-    @Override
+
     public void showErrorDialog(String message) {
         //Setting message manually and performing action on button click
         builder.setMessage(message)
@@ -124,7 +163,7 @@ public class EditTodoActivity extends AppCompatActivity implements EditTodoContr
         alert.show();
     }
 
-    @Override
+
     public void showDatePickerDialog() {
         int mYear, mMonth, mDay, mHour, mMinute;
         // Get Current Date
@@ -140,17 +179,17 @@ public class EditTodoActivity extends AppCompatActivity implements EditTodoContr
         datePickerDialog.show();
     }
 
-    @Override
+
     public void setName(String name) {
         edtName.setText(name);
     }
 
-    @Override
+
     public void setDescription(String description) {
         edtDescription.setText(description);
     }
 
-    @Override
+
     public void setDate(String date) {
         edtDate.setText(date);
     }
@@ -167,7 +206,7 @@ public class EditTodoActivity extends AppCompatActivity implements EditTodoContr
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.cancel:
-                presenter.OnCancel();
+                viewModel.OnCancel();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -1,13 +1,17 @@
 package com.android.basics.presentation.splash;
 
+import androidx.lifecycle.ViewModelProvider;
+
 import com.android.basics.core.TodoApplication;
-import com.android.basics.di.ApplicationScope;
-import com.android.basics.presentation.TodoNavigator;
+import com.android.basics.core.navigation.Navigator;
+import com.android.basics.di.ApplicationComponent;
+import com.android.basics.di.ViewModelFactory;
 
 public class SplashInjector {
 
-    private ApplicationScope applicationScope;
+    private ApplicationComponent applicationComponent;
     private static SplashInjector instance = null;
+    private Navigator navigator;
 
     private SplashInjector() {
     }
@@ -20,19 +24,20 @@ public class SplashInjector {
     }
 
     public void inject(SplashActivity activity) {
-        applicationScope = ((TodoApplication) activity.getApplication()).getApplicationScope();
+        applicationComponent = ((TodoApplication) activity.getApplication()).getApplicationComponent();
         injectObject(activity);
     }
 
     private void injectObject(SplashActivity activity) {
-        activity.presenter = new SplashPresenter(provideNavigator(activity));
-    }
-
-    private SplashContract.Navigator provideNavigator(SplashActivity activity) {
-        return new TodoNavigator(applicationScope.navigator(activity));
+        ViewModelFactory viewModelFactory = new ViewModelFactory(applicationComponent);
+        navigator = viewModelFactory.getNavigator();
+        navigator.setActivity(activity);
+        activity.viewModel = new ViewModelProvider(activity, viewModelFactory).get(SplashViewModel.class);
     }
 
     public void destroy() {
+        navigator.clear();
+        navigator = null;
         instance = null;
     }
 

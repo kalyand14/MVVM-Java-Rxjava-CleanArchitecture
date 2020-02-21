@@ -1,38 +1,33 @@
 package com.android.basics.domain.interactor.todo;
 
-import com.android.basics.core.Callback;
-import com.android.basics.core.mvp.UseCase;
+import androidx.core.util.Preconditions;
+
+import com.android.basics.core.domain.executor.PostExecutionThread;
+import com.android.basics.core.domain.executor.ThreadExecutor;
+import com.android.basics.core.domain.interactor.FlowableUseCase;
 import com.android.basics.domain.model.Todo;
 import com.android.basics.domain.repository.TodoRepository;
 
 import java.util.List;
 
-public class GetTodoListInteractor extends UseCase<GetTodoListInteractor.Params, List<Todo>> {
+import io.reactivex.Flowable;
+
+public class GetTodoListInteractor extends FlowableUseCase<List<Todo>, GetTodoListInteractor.Params> {
 
     private TodoRepository todoRepository;
 
-    public GetTodoListInteractor(TodoRepository todoRepository) {
+    public GetTodoListInteractor(TodoRepository todoRepository, ThreadExecutor threadExecutor,
+                                 PostExecutionThread postExecutionThread) {
+        super(threadExecutor, postExecutionThread);
         this.todoRepository = todoRepository;
     }
 
     @Override
-    protected void executeTask(Params params, final Callback<List<Todo>> callback) {
-        todoRepository.getTodoList(params.userId, new Callback<List<Todo>>() {
-            @Override
-            public void onResponse(List<Todo> response) {
-                if (!isDisposed()) {
-                    callback.onResponse(response);
-                }
-            }
-
-            @Override
-            public void onError(String errorcode, String errorResponse) {
-                if (!isDisposed()) {
-                    callback.onError(errorcode, errorResponse);
-                }
-            }
-        });
+    public Flowable<List<Todo>> buildUseCaseObservable(Params params) {
+        Preconditions.checkNotNull(params);
+        return todoRepository.getTodoList(params.userId);
     }
+
 
     public static final class Params {
 

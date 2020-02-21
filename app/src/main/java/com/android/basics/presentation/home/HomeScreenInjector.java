@@ -2,12 +2,14 @@ package com.android.basics.presentation.home;
 
 import android.app.ProgressDialog;
 
+import androidx.lifecycle.ViewModelProvider;
+
 import com.android.basics.core.TodoApplication;
-import com.android.basics.di.ApplicationScope;
-import com.android.basics.di.TodoScope;
-import com.android.basics.di.UserScope;
-import com.android.basics.domain.interactor.todo.GetTodoListInteractor;
-import com.android.basics.presentation.TodoNavigator;
+import com.android.basics.core.navigation.Navigator;
+import com.android.basics.di.ApplicationComponent;
+import com.android.basics.di.TodoComponent;
+import com.android.basics.di.ViewModelFactory;
+import com.android.basics.presentation.TodoCoordinator;
 import com.android.basics.presentation.components.TodoSession;
 import com.android.basics.presentation.components.UserSession;
 import com.android.basics.presentation.home.components.TodoListAdapter;
@@ -16,7 +18,9 @@ import java.util.ArrayList;
 
 public class HomeScreenInjector {
 
-    private ApplicationScope applicationScope;
+    private ApplicationComponent applicationComponent;
+    private Navigator navigator;
+    private TodoCoordinator coordinator;
 
     private static HomeScreenInjector instance = null;
 
@@ -31,13 +35,12 @@ public class HomeScreenInjector {
     }
 
     public void inject(HomeActivity activity) {
-        applicationScope = ((TodoApplication) activity.getApplication()).getApplicationScope();
+        applicationComponent = ((TodoApplication) activity.getApplication()).getApplicationComponent();
         injectView(activity);
         injectObject(activity);
     }
 
     private void injectView(HomeActivity activity) {
-        activity.todoListAdapter = provideTodoListAdapter(activity);
         activity.progressDialog = new ProgressDialog(activity);
         activity.progressDialog.setIndeterminate(true);
         activity.progressDialog.setMessage("Logging in");
@@ -45,23 +48,22 @@ public class HomeScreenInjector {
 
     private void injectObject(HomeActivity activity) {
         activity.user = UserSession.getInstance().getUser();
-        activity.presenter = new HomeScreenPresenter(provideGetTodoList(), UserSession.getInstance(), UserScope.getInstance(), provideNavigator(activity));
+        ViewModelFactory viewModelFactory = new ViewModelFactory(applicationComponent);
+        navigator = viewModelFactory.getNavigator();
+        navigator.setActivity(activity);
+        coordinator = viewModelFactory.getTodoCoordinator();
+        activity.viewModel = new ViewModelProvider(activity, viewModelFactory).get(HomeScreenViewModel.class);
+
+        activity.todoListAdapter = provideTodoListAdapter();
     }
 
-    private HomeScreenContract.Navigator provideNavigator(HomeActivity activity) {
-        return new TodoNavigator(applicationScope.navigator(activity));
+    private TodoListAdapter provideTodoListAdapter() {
+        return new TodoListAdapter(new ArrayList<>(), coordinator, TodoSession.getInstance(), TodoComponent.getInstance());
     }
-
-    private TodoListAdapter provideTodoListAdapter(HomeActivity activity) {
-        return new TodoListAdapter(new ArrayList<>(), provideNavigator(activity), TodoSession.getInstance(), TodoScope.getInstance());
-    }
-
-    private GetTodoListInteractor provideGetTodoList() {
-        return new GetTodoListInteractor(applicationScope.todoRepository());
-    }
-
 
     public void destroy() {
+        navigator.clear();
+        navigator = null;
         instance = null;
     }
 }

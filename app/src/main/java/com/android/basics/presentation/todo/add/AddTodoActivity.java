@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -15,10 +14,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.basics.R;
+import com.android.basics.core.presentation.ResourceState;
 
 import java.util.Calendar;
 
-public class AddTodoActivity extends AppCompatActivity implements AddTodoContract.View {
+public class AddTodoActivity extends AppCompatActivity {
+
+    AddTodoViewModel viewModel;
 
     EditText edtName;
     EditText edtDescription;
@@ -27,10 +29,7 @@ public class AddTodoActivity extends AppCompatActivity implements AddTodoContrac
     Button btnCancel;
     ImageButton btnDate;
 
-    AddTodoContract.Presenter presenter;
-
     ProgressDialog progressDialog;
-
     AlertDialog.Builder builder;
 
     @Override
@@ -50,53 +49,65 @@ public class AddTodoActivity extends AppCompatActivity implements AddTodoContrac
         btnCancel = findViewById(R.id.btn_cancel);
         btnDate = findViewById(R.id.btn_date);
 
-        btnSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.onSubmit(edtName.getText().toString(), edtDescription.getText().toString(), edtDate.getText().toString());
-            }
-        });
+        btnSubmit.setOnClickListener(view ->
+                viewModel.onSubmit(edtName.getText().toString(), edtDescription.getText().toString(), edtDate.getText().toString()));
 
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.OnCancel();
-            }
-        });
+        btnCancel.setOnClickListener(view -> viewModel.OnCancel());
 
-        btnDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                presenter.onSelectDate();
-            }
-        });
+        btnDate.setOnClickListener(view -> viewModel.onSelectDate());
 
         AddTodoInjector.getInstance().inject(this);
-
-        presenter.attach(this);
-
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        viewModel.getState().observe(this, it -> {
+            if (it != null) {
+                handleState(it.getState(), it.getMessage());
+            }
+        });
+
+        viewModel.getShowDatePickerEvent().observe(this, it -> {
+            showDatePickerDialog();
+        });
+    }
+
+    private void handleState(ResourceState state, String errorMessage) {
+        switch (state) {
+            case SUCCESS:
+                dismissProgressDialog();
+                showSuccessDialog();
+                break;
+            case ERROR:
+                dismissProgressDialog();
+                showErrorDialog();
+                break;
+            case LOADING:
+                showProgressDialog();
+                break;
+        }
+    }
+
+
     protected void onDestroy() {
         super.onDestroy();
-        presenter.detach();
         AddTodoInjector.getInstance().destroy();
     }
 
-    @Override
+
     public void showProgressDialog() {
         progressDialog.setMessage("Submitting ...");
         progressDialog.show();
     }
 
-    @Override
+
     public void dismissProgressDialog() {
         progressDialog.dismiss();
         progressDialog.cancel();
     }
 
-    @Override
+
     public void showSuccessDialog() {
 
         //Setting message manually and performing action on button click
@@ -104,7 +115,7 @@ public class AddTodoActivity extends AppCompatActivity implements AddTodoContrac
                 .setCancelable(false)
                 .setPositiveButton("Ok", (dialog, id) -> {
                     dialog.dismiss();
-                    presenter.navigate();
+                    viewModel.navigate();
                 });
         //Creating dialog box
         AlertDialog alert = builder.create();
@@ -112,7 +123,7 @@ public class AddTodoActivity extends AppCompatActivity implements AddTodoContrac
 
     }
 
-    @Override
+
     public void showErrorDialog() {
 
         //Setting message manually and performing action on button click
@@ -128,7 +139,7 @@ public class AddTodoActivity extends AppCompatActivity implements AddTodoContrac
 
     }
 
-    @Override
+
     public void showDatePickerDialog() {
         int mYear, mMonth, mDay, mHour, mMinute;
         // Get Current Date
@@ -156,7 +167,7 @@ public class AddTodoActivity extends AppCompatActivity implements AddTodoContrac
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.cancel:
-                presenter.OnCancel();
+                viewModel.OnCancel();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

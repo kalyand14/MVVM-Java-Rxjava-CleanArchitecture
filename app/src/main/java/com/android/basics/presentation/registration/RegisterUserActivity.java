@@ -9,11 +9,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.basics.R;
+import com.android.basics.core.presentation.ResourceState;
+import com.android.basics.domain.model.User;
 
-public class RegisterUserActivity extends AppCompatActivity implements RegisterUserContract.View {
+public class RegisterUserActivity extends AppCompatActivity {
 
-    RegisterUserContract.Presenter presenter;
-
+    RegistrationViewModel viewModel;
     ProgressDialog progressDialog;
 
     Button btnLogin;
@@ -35,33 +36,58 @@ public class RegisterUserActivity extends AppCompatActivity implements RegisterU
         edtPassword = findViewById(R.id.edt_todo_description);
         builder = new AlertDialog.Builder(this);
 
-        btnRegister.setOnClickListener(view -> presenter.onRegisterClick(edtUserName.getText().toString(), edtPassword.getText().toString()));
-        btnLogin.setOnClickListener(view -> presenter.onLoginClick());
+        btnRegister.setOnClickListener(view -> viewModel.onRegisterClick(edtUserName.getText().toString(), edtPassword.getText().toString()));
+        btnLogin.setOnClickListener(view -> viewModel.onLoginClick());
 
         RegisterUserInjector.getInstance().inject(this);
-        this.presenter.attach(this);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        viewModel.getState().observe(this, it -> {
+            if (it != null) {
+                handleState(it.getState(), it.getData(), it.getMessage());
+            }
+        });
+    }
+
+    private void handleState(ResourceState state, User user, String errorMessage) {
+        switch (state) {
+            case SUCCESS:
+                dismissProgressDialog();
+                showRegistrationSuccess();
+                break;
+            case ERROR:
+                dismissProgressDialog();
+                showRegistrationError();
+                break;
+            case LOADING:
+                showProgressDialog();
+                break;
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        this.presenter.detach();
         RegisterUserInjector.getInstance().destroy();
     }
 
-    @Override
+
     public void showProgressDialog() {
         progressDialog.setMessage("Registering ...");
         progressDialog.show();
     }
 
-    @Override
+
     public void dismissProgressDialog() {
         progressDialog.dismiss();
         progressDialog.cancel();
     }
 
-    @Override
+
     public void showRegistrationError() {
 
         edtUserName.setText("");
@@ -80,16 +106,14 @@ public class RegisterUserActivity extends AppCompatActivity implements RegisterU
 
     }
 
-    @Override
+
     public void showRegistrationSuccess() {
-
-
         //Setting message manually and performing action on button click
         builder.setMessage("you've successfully registered.")
                 .setCancelable(false)
                 .setPositiveButton("Ok", (dialog, id) -> {
                     dialog.dismiss();
-                    presenter.onRegistrationSuccess();
+                    viewModel.onRegistrationSuccess();
                 });
         //Creating dialog box
         AlertDialog alert = builder.create();

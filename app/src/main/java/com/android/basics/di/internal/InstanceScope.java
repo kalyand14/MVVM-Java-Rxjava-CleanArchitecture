@@ -1,4 +1,4 @@
-package com.android.basics.core.di;
+package com.android.basics.di.internal;
 
 public interface InstanceScope extends BaseScope {
 

@@ -9,16 +9,23 @@ import java.lang.ref.WeakReference;
 
 public class Navigator implements BaseNavigator {
 
-    private final WeakReference<AppCompatActivity> contextWeakRef;
+    private WeakReference<AppCompatActivity> contextWeakRef;
 
     IntentFactory intentFactory;
     BundleFactory bundleFactory;
 
-
-    public Navigator(AppCompatActivity context, IntentFactory intentFactory, BundleFactory bundleFactory) {
-        this.contextWeakRef = new WeakReference<>(context);
+    public Navigator(IntentFactory intentFactory, BundleFactory bundleFactory) {
         this.intentFactory = intentFactory;
         this.bundleFactory = bundleFactory;
+    }
+
+    public void setActivity(AppCompatActivity activity) {
+        this.contextWeakRef = new WeakReference<>(activity);
+    }
+
+    public void clear() {
+        contextWeakRef.clear();
+        contextWeakRef = null;
     }
 
     @Override
