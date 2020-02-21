@@ -15,10 +15,21 @@
  Activity/Fragment  --> ViewModel --> Usecase(Interactor) --> Repository --> LocalDataStore(Room DB)
 
 <b>Communication between layers</b>
-
- Below are few component that i want to highlight.
+<ol>
+  <li>UI calls method from ViewModel.</li>
+ViewModel executes Use case.
+Use case combines data from Album and Photo Repositories.
+Each Repository returns data from a Data Source (Cached or Remote).
+Information flows back to the UI where we display the list of posts.
+</ol>
+<b>Other important components</b>
+<ul>
+  <li>Navigator</li>
+  <li>ResourceManger</li>
+ </ul>
  
- 1) Navigator
- 2) ResourceManger
+<b>Scenario</b>
 
-References:
+At a glance:
+
+<b>References</b>
