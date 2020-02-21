@@ -17,10 +17,10 @@
 <b>Communication between layers</b>
 <ol>
   <li>UI calls method from ViewModel.</li>
-ViewModel executes Use case.
-Use case combines data from Album and Photo Repositories.
-Each Repository returns data from a Data Source (Cached or Remote).
-Information flows back to the UI where we display the list of posts.
+  <li>ViewModel executes Use case.</li>
+  <li>Use case combines data from Album and Photo Repositories.</li>
+  <li>Each Repository returns data from a Data Source (Cached or Remote).</li>
+  <li>Information flows back to the UI where we display the list of posts.</li>
 </ol>
 <b>Other important components</b>
 <ul>
@@ -31,5 +31,10 @@ Information flows back to the UI where we display the list of posts.
 <b>Scenario</b>
 
 At a glance:
+<ul>
+  <li>Use can either Register or Login if already registered</li>
+  <li>Once authenticated, show list of todos with option to add new todo</li>
+  <li>Once tap on each item, show edit/delete todo screen</li>
+ </ul>
 
 <b>References</b>
