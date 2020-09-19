@@ -6,7 +6,11 @@ import androidx.lifecycle.ViewModel;
 import com.android.basics.core.SingleLiveEvent;
 import com.android.basics.core.presentation.Resource;
 import com.android.basics.domain.interactor.todo.AddTodoInteractor;
+import com.android.basics.presentation.TodoCoordinator;
+import com.android.basics.presentation.components.UserCache;
 import com.android.basics.presentation.components.UserSession;
+
+import javax.inject.Inject;
 
 import io.reactivex.observers.DisposableCompletableObserver;
 
@@ -16,17 +20,18 @@ public class AddTodoViewModel extends ViewModel {
     private AddTodoInteractor addTodoInteractor;
 
 
-    private UserSession session;
+    private UserCache userCache;
     private final SingleLiveEvent<Void> ShowDatePickerEvent = new SingleLiveEvent<>();
     private MutableLiveData<Resource<Void>> state = new MutableLiveData<>();
 
 
-    public AddTodoViewModel(AddTodoContract.Navigator navigator,
+    @Inject
+    public AddTodoViewModel(TodoCoordinator navigator,
                             AddTodoInteractor addTodoInteractor,
-                            UserSession session) {
+                            UserCache userCache) {
         this.navigator = navigator;
         this.addTodoInteractor = addTodoInteractor;
-        this.session = session;
+        this.userCache = userCache;
     }
 
     public SingleLiveEvent<Void> getShowDatePickerEvent() {
@@ -39,7 +44,7 @@ public class AddTodoViewModel extends ViewModel {
 
     public void onSubmit(String name, String desc, String date) {
         state.postValue(Resource.loading());
-        addTodoInteractor.execute(new AddTodoObserver(), AddTodoInteractor.Params.forTodo(session.getUser().getUserId(), name, desc, date));
+        addTodoInteractor.execute(new AddTodoObserver(), AddTodoInteractor.Params.forTodo(userCache.getUser().getUserId(), name, desc, date));
     }
 
     public void navigate() {

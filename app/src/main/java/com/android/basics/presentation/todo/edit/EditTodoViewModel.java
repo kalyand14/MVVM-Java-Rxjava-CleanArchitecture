@@ -8,7 +8,10 @@ import com.android.basics.core.presentation.Resource;
 import com.android.basics.domain.interactor.todo.DeleteTodoInteractor;
 import com.android.basics.domain.interactor.todo.EditTodoInteractor;
 import com.android.basics.domain.model.Todo;
-import com.android.basics.presentation.components.TodoSession;
+import com.android.basics.presentation.TodoCoordinator;
+import com.android.basics.presentation.components.UserCache;
+
+import javax.inject.Inject;
 
 import io.reactivex.observers.DisposableCompletableObserver;
 
@@ -17,8 +20,8 @@ public class EditTodoViewModel extends ViewModel {
     private EditTodoInteractor editTodoInteractor;
     private DeleteTodoInteractor deleteTodoInteractor;
     private EditTodoContract.Navigator navigator;
-    private TodoSession session;
-
+    private UserCache userCache;
+    private Todo todo;
 
     private final SingleLiveEvent<Void> ShowDatePickerEvent = new SingleLiveEvent<>();
     private final SingleLiveEvent<Todo> LoadTodoEvent = new SingleLiveEvent<>();
@@ -26,14 +29,15 @@ public class EditTodoViewModel extends ViewModel {
     private MutableLiveData<Resource<Void>> deleteTodoState = new MutableLiveData<>();
 
 
+    @Inject
     public EditTodoViewModel(EditTodoInteractor editTodoInteractor,
                              DeleteTodoInteractor deleteTodoInteractor,
-                             EditTodoContract.Navigator navigator,
-                             TodoSession session) {
+                             TodoCoordinator navigator,
+                             UserCache userCache) {
         this.editTodoInteractor = editTodoInteractor;
         this.deleteTodoInteractor = deleteTodoInteractor;
         this.navigator = navigator;
-        this.session = session;
+        this.userCache = userCache;
     }
 
     public SingleLiveEvent<Void> getShowDatePickerEvent() {
@@ -53,13 +57,12 @@ public class EditTodoViewModel extends ViewModel {
     }
 
     public void loadTodo() {
-        Todo todo = TodoSession.getInstance().getTodo();
+        todo = userCache.getTodoById(userCache.getSelectedTodoId());
         LoadTodoEvent.setValue(todo);
     }
 
     public void onSubmit(String name, String desc, String date) {
         editTodoState.postValue(Resource.loading());
-        Todo todo = TodoSession.getInstance().getTodo();
         todo.setName(name);
         todo.setDescription(desc);
         todo.setDueDate(date);
@@ -76,7 +79,7 @@ public class EditTodoViewModel extends ViewModel {
 
     public void onDelete() {
         deleteTodoState.postValue(Resource.loading());
-        deleteTodoInteractor.execute(new DeleteTodoObserver(), session.getTodo().getTodoId());
+        deleteTodoInteractor.execute(new DeleteTodoObserver(), todo.getTodoId());
     }
 
     public void onSelectDate() {

@@ -7,12 +7,15 @@ import com.android.basics.core.domain.executor.ThreadExecutor;
 import com.android.basics.core.domain.interactor.CompletableUseCase;
 import com.android.basics.domain.repository.UserRepository;
 
+import javax.inject.Inject;
+
 import io.reactivex.Completable;
 
 public class RegisterUserInteractor extends CompletableUseCase<RegisterUserInteractor.Params> {
 
     private UserRepository userRepository;
 
+    @Inject
     public RegisterUserInteractor(UserRepository userRepository, ThreadExecutor threadExecutor,
                                   PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);

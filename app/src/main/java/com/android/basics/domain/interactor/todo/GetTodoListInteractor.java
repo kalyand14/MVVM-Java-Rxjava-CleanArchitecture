@@ -10,12 +10,15 @@ import com.android.basics.domain.repository.TodoRepository;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import io.reactivex.Flowable;
 
 public class GetTodoListInteractor extends FlowableUseCase<List<Todo>, GetTodoListInteractor.Params> {
 
     private TodoRepository todoRepository;
 
+    @Inject
     public GetTodoListInteractor(TodoRepository todoRepository, ThreadExecutor threadExecutor,
                                  PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);

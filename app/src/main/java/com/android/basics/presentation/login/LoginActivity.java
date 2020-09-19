@@ -6,31 +6,27 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.basics.R;
-import com.android.basics.core.presentation.ResourceState;
-import com.android.basics.di.UserComponent;
+import com.android.basics.core.presentation.AuthResource;
 import com.android.basics.domain.model.User;
+import com.android.basics.presentation.BaseActivity;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity<LoginViewModel> {
 
-    LoginViewModel viewModel;
+    private ProgressDialog progressDialog;
 
-    ProgressDialog progressDialog;
+    private Button btnLogin;
+    private Button btnRegister;
 
-    Button btnLogin;
-    Button btnRegister;
+    private EditText edtUserName;
+    private EditText edtPassword;
 
-    EditText edtUserName;
-    EditText edtPassword;
-
-    AlertDialog.Builder builder;
+    private AlertDialog.Builder builder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
 
         btnLogin = findViewById(R.id.btn_add_todo);
         btnRegister = findViewById(R.id.btn_signup);
@@ -41,10 +37,24 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(view -> viewModel.OnLoginClick(edtUserName.getText().toString(), edtPassword.getText().toString()));
         btnRegister.setOnClickListener(view -> viewModel.onRegisterClick());
 
-        UserComponent.getInstance().end();
+        //UserComponent.getInstance().end();
 
-        LoginInjector.getInstance().inject(this);
+        //LoginInjector.getInstance().inject(this);
 
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Logging in");
+
+    }
+
+    @Override
+    protected Integer getContentViewId() {
+        return R.layout.activity_login;
+    }
+
+    @Override
+    protected Class<? extends LoginViewModel> getViewModel() {
+        return LoginViewModel.class;
     }
 
     @Override
@@ -52,13 +62,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onPause();
         dismissProgressDialog();
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        LoginInjector.getInstance().destroy();
-    }
-
 
     public void showProgressDialog() {
         progressDialog.setMessage("Logging in");
@@ -101,9 +104,9 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void handleState(ResourceState state, User user, String errorMessage) {
+    private void handleState(AuthResource.AuthResourceState state, User user, String errorMessage) {
         switch (state) {
-            case SUCCESS:
+            case AUTHENTICATED:
                 dismissProgressDialog();
                 break;
             case ERROR:

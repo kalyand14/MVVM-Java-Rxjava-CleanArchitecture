@@ -15,28 +15,27 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.basics.R;
-import com.android.basics.core.presentation.ResourceState;
+import com.android.basics.core.presentation.Resource;
+import com.android.basics.presentation.BaseActivity;
+import com.android.basics.presentation.UserActivity;
 
 import java.util.Calendar;
 
-public class EditTodoActivity extends AppCompatActivity {
+public class EditTodoActivity extends UserActivity<EditTodoViewModel> {
 
-    EditTodoViewModel viewModel;
+    private ProgressDialog progressDialog;
+    private AlertDialog.Builder builder;
 
-    ProgressDialog progressDialog;
-    AlertDialog.Builder builder;
-
-    EditText edtName;
-    EditText edtDescription;
-    EditText edtDate;
-    Button btnSubmit;
-    Button btnDelete;
-    ImageButton btnDate;
+    private EditText edtName;
+    private  EditText edtDescription;
+    private EditText edtDate;
+    private Button btnSubmit;
+    private Button btnDelete;
+    private ImageButton btnDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_todo);
 
         setTitle("Edit Todo");
 
@@ -57,9 +56,20 @@ public class EditTodoActivity extends AppCompatActivity {
 
         btnDate.setOnClickListener(view -> viewModel.onSelectDate());
 
-        EditTodoInjector.getInstance().inject(this);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setIndeterminate(true);
 
         viewModel.loadTodo();
+    }
+
+    @Override
+    protected Integer getContentViewId() {
+        return R.layout.activity_edit_todo;
+    }
+
+    @Override
+    protected Class<? extends EditTodoViewModel> getViewModel() {
+        return EditTodoViewModel.class;
     }
 
     @Override
@@ -84,7 +94,7 @@ public class EditTodoActivity extends AppCompatActivity {
         });
     }
 
-    private void handleEditTodoState(ResourceState state, String errorMessage) {
+    private void handleEditTodoState(Resource.ResourceState state, String errorMessage) {
         switch (state) {
             case SUCCESS:
                 dismissProgressDialog();
@@ -100,7 +110,7 @@ public class EditTodoActivity extends AppCompatActivity {
         }
     }
 
-    private void handleDeleteTodoState(ResourceState state, String errorMessage) {
+    private void handleDeleteTodoState(Resource.ResourceState state, String errorMessage) {
         switch (state) {
             case SUCCESS:
                 dismissProgressDialog();
@@ -115,12 +125,6 @@ public class EditTodoActivity extends AppCompatActivity {
                 break;
         }
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
 
     public void showProgressDialog(String message) {
         progressDialog.setMessage(message);

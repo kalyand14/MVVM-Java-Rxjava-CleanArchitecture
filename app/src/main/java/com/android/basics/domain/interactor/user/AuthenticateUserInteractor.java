@@ -9,6 +9,8 @@ import com.android.basics.core.domain.interactor.SingleUseCase;
 import com.android.basics.domain.model.User;
 import com.android.basics.domain.repository.UserRepository;
 
+import javax.inject.Inject;
+
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 
@@ -16,6 +18,7 @@ public class AuthenticateUserInteractor extends SingleUseCase<User, Authenticate
 
     private UserRepository userRepository;
 
+    @Inject
     public AuthenticateUserInteractor(UserRepository userRepository, ThreadExecutor threadExecutor,
                                       PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);

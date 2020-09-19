@@ -36,4 +36,9 @@ public class Resource<T> {
     public static <T> Resource<T> loading() {
         return new Resource<>(ResourceState.LOADING, null, null);
     }
+
+    public enum ResourceState {
+        LOADING, SUCCESS, ERROR
+    }
 }
+

@@ -9,12 +9,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.basics.R;
-import com.android.basics.di.TodoComponent;
 import com.android.basics.domain.model.Todo;
+import com.android.basics.presentation.TodoCoordinator;
 import com.android.basics.presentation.components.BaseViewHolder;
-import com.android.basics.presentation.components.TodoSession;
+import com.android.basics.presentation.components.UserCache;
 import com.android.basics.presentation.home.HomeScreenContract;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TodoListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
@@ -23,15 +24,12 @@ public class TodoListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
 
     private HomeScreenContract.Navigator navigator;
 
-    private TodoComponent scope;
+    private UserCache userCache;
 
-    private TodoSession session;
-
-    public TodoListAdapter(List<Todo> todoList, HomeScreenContract.Navigator navigator, TodoSession todoSession, TodoComponent scope) {
-        this.todoList = todoList;
+    public TodoListAdapter(TodoCoordinator navigator, UserCache userCache) {
+        this.todoList = new ArrayList<>();
         this.navigator = navigator;
-        this.scope = scope;
-        this.session = todoSession;
+        this.userCache = userCache;
     }
 
     @NonNull
@@ -78,8 +76,7 @@ public class TodoListAdapter extends RecyclerView.Adapter<BaseViewHolder> {
             txtDescription.setText(todo.getDescription());
 
             itemView.setOnClickListener(view -> {
-                scope.end();
-                TodoSession.getInstance().setTodo(todo);
+                userCache.setSelectedTodoId(todo.getTodoId());
                 navigator.goToEditTodoScreen();
             });
         }

@@ -6,29 +6,27 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.basics.R;
-import com.android.basics.core.presentation.ResourceState;
+import com.android.basics.core.presentation.AuthResource;
 import com.android.basics.domain.model.User;
+import com.android.basics.presentation.BaseActivity;
 
-public class RegisterUserActivity extends AppCompatActivity {
+public class RegisterUserActivity extends BaseActivity<RegistrationViewModel> {
 
-    RegistrationViewModel viewModel;
-    ProgressDialog progressDialog;
+    private ProgressDialog progressDialog;
 
-    Button btnLogin;
-    Button btnRegister;
+    private Button btnLogin;
+    private Button btnRegister;
 
-    EditText edtUserName;
-    EditText edtPassword;
+    private EditText edtUserName;
+    private EditText edtPassword;
 
     AlertDialog.Builder builder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register_user);
 
         btnLogin = findViewById(R.id.btn_add_todo);
         btnRegister = findViewById(R.id.btn_signup);
@@ -39,8 +37,19 @@ public class RegisterUserActivity extends AppCompatActivity {
         btnRegister.setOnClickListener(view -> viewModel.onRegisterClick(edtUserName.getText().toString(), edtPassword.getText().toString()));
         btnLogin.setOnClickListener(view -> viewModel.onLoginClick());
 
-        RegisterUserInjector.getInstance().inject(this);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setIndeterminate(true);
 
+    }
+
+    @Override
+    protected Integer getContentViewId() {
+        return R.layout.activity_register_user;
+    }
+
+    @Override
+    protected Class<? extends RegistrationViewModel> getViewModel() {
+        return RegistrationViewModel.class;
     }
 
     @Override
@@ -53,9 +62,9 @@ public class RegisterUserActivity extends AppCompatActivity {
         });
     }
 
-    private void handleState(ResourceState state, User user, String errorMessage) {
+    private void handleState(AuthResource.AuthResourceState state, User user, String errorMessage) {
         switch (state) {
-            case SUCCESS:
+            case AUTHENTICATED:
                 dismissProgressDialog();
                 showRegistrationSuccess();
                 break;
@@ -68,13 +77,6 @@ public class RegisterUserActivity extends AppCompatActivity {
                 break;
         }
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        RegisterUserInjector.getInstance().destroy();
-    }
-
 
     public void showProgressDialog() {
         progressDialog.setMessage("Registering ...");

@@ -7,12 +7,15 @@ import com.android.basics.core.domain.executor.ThreadExecutor;
 import com.android.basics.core.domain.interactor.CompletableUseCase;
 import com.android.basics.domain.repository.TodoRepository;
 
+import javax.inject.Inject;
+
 import io.reactivex.Completable;
 
 public class AddTodoInteractor extends CompletableUseCase<AddTodoInteractor.Params> {
 
     private TodoRepository todoRepository;
 
+    @Inject
     public AddTodoInteractor(TodoRepository todoRepository, ThreadExecutor threadExecutor,
                              PostExecutionThread postExecutionThread) {
         super(threadExecutor, postExecutionThread);

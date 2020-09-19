@@ -9,36 +9,39 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.basics.R;
-import com.android.basics.core.presentation.ResourceState;
+import com.android.basics.core.presentation.Resource;
 import com.android.basics.domain.model.Todo;
-import com.android.basics.domain.model.User;
+import com.android.basics.presentation.BaseActivity;
+import com.android.basics.presentation.UserActivity;
 import com.android.basics.presentation.home.components.TodoListAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity {
+import javax.inject.Inject;
 
-    HomeScreenViewModel viewModel;
-    ProgressDialog progressDialog;
-    RecyclerView recyclerView;
+public class HomeActivity extends UserActivity<HomeScreenViewModel> {
+
+    private ProgressDialog progressDialog;
+
+    private RecyclerView recyclerView;
+
+    @Inject
     TodoListAdapter todoListAdapter;
-    LinearLayoutManager layoutManager;
-    User user;
-    TextView txtError;
-    FloatingActionButton floatingActionButton;
-    AlertDialog.Builder builder;
+
+    private LinearLayoutManager layoutManager;
+    private TextView txtError;
+    private FloatingActionButton floatingActionButton;
+    private AlertDialog.Builder builder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
 
         builder = new AlertDialog.Builder(this);
 
@@ -49,13 +52,26 @@ public class HomeActivity extends AppCompatActivity {
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        HomeScreenInjector.getInstance().inject(this);
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Logging in");
 
         recyclerView.setAdapter(todoListAdapter);
 
-        viewModel.onLoadTodoList(user.getUserId());
+        viewModel.onLoadTodoList();
 
         floatingActionButton.setOnClickListener(view -> viewModel.onAddTodo());
+    }
+
+    @Override
+    protected Integer getContentViewId() {
+        return R.layout.activity_home;
+    }
+
+    @Override
+    protected Class<? extends HomeScreenViewModel> getViewModel() {
+        return HomeScreenViewModel.class;
     }
 
     @Override
@@ -72,7 +88,7 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void handleState(ResourceState state, List<Todo> todoList, String errorMessage) {
+    private void handleState(Resource.ResourceState state, List<Todo> todoList, String errorMessage) {
         switch (state) {
             case SUCCESS:
                 dismissProgressDialog();
@@ -145,12 +161,6 @@ public class HomeActivity extends AppCompatActivity {
         AlertDialog alert = builder.create();
         alert.setTitle("Logout");
         alert.show();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        HomeScreenInjector.getInstance().destroy();
     }
 
     @Override
